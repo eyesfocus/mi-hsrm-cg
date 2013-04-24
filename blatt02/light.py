@@ -3,6 +3,7 @@
 from algebra import Point, Vector
 
 class Light(object):
+    '''Pointlight of a Scene'''
     
     def __init__(self, lightpoint, colora = (1, 1, 1), colorin = (1, 1, 1)):
         self.point = lightpoint

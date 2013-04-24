@@ -4,6 +4,7 @@ from algebra import Vector
 
 
 class Object(object):
+    '''Object in the scene'''
     def __init__(self, surface):
         self.surface = surface
 
@@ -17,6 +18,8 @@ class Object(object):
         return self.surface.baseColorAt(point)
 
     def calcColor(self, light, lightray, ray, point):
+        '''Calculates the color with Phong-Model'''
+        
         ka = self.surface.ka
         kd = self.surface.kd
         ks = self.surface.ks

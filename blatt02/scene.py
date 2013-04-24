@@ -5,7 +5,6 @@ import math
 
 BACKGROUND_COLOR = Vector(0, 0, 0)
 
-
 class Scene(object):
     def __init__(self, wRes, hRes):
         self.objectlist = []
@@ -13,12 +12,16 @@ class Scene(object):
         self.hRes = hRes
 
     def addObject(self, obj):
+        '''Add Object to a Scene'''
         self.objectlist.append(obj)
 
     def addLight(self, light):
+        '''Add Light to a Scene'''
         self.light = light
 
     def setUpCamera(self, e, up, c, fieldofview):
+        '''Calculate Coordinates of the Camera'''
+
         self.e = e
         self.up = up
         self.c = c
@@ -42,6 +45,8 @@ class Scene(object):
         self.pixelHeight = self.height / (self.hRes-1)
 
     def render(self, image, level=0):
+        '''Renders Scene pixelwise'''
+        
         self.maxlevel = level
         print 'Rendering with recursion depth = %d ...' %level
         for x in range(self.wRes):
@@ -57,6 +62,8 @@ class Scene(object):
         return BACKGROUND_COLOR
 
     def intersect(self, ray):
+        '''Test if theres any intersection'''
+        
         maxdist = float('inf')
         nearestObject = None
         
@@ -67,11 +74,13 @@ class Scene(object):
                 nearestObject = obj
         if nearestObject:
             point = ray.pointAtParameter(maxdist)
-            return (nearestObject, point, ray)
+            return (nearestObject, point, ray) # intersection
         else:
-            return 0
+            return 0 # no intersection
 
     def shade(self, level, hitPointData):
+        '''Set pixelcolor'''
+
         obj, point, ray = hitPointData
 
         # calculate own color
@@ -88,6 +97,7 @@ class Scene(object):
         return directColor + reflectedColor * reflection
 
     def computeReflectedRay(self, hitPointData):
+        '''Computes reflected ray'''
         obj, point, ray = hitPointData
         
         n = obj.normalAt(point)
@@ -95,19 +105,23 @@ class Scene(object):
         return Ray(point, dr)
 
     def calcRay(self, x, y):
+        '''Calculate ray with x- and y-coords of screen'''
+        
         xcomp = self.s.scale(x*self.pixelWidth - self.width/2.0)
         ycomp = self.u.scale(y*self.pixelHeight - self.height/2.0)
         return Ray(self.e, self.f + xcomp + ycomp)
 
     def inShadow(self, obj, lightray):
+        '''Tests if the object is blocked by another''' 
         for otherobj in self.objectlist:
             if otherobj is not obj:
                 hitdist = otherobj.intersectionParameter(lightray)
                 if hitdist > 0.00001:
-                    return True
-        return False
+                    return True # in shadow
+        return False # not in shadow
 
     def calcColor(self, hitPointData):
+        '''Calculate Pixelcolor'''
         obj, point, ray = hitPointData
 
         lightray = Ray(point, self.light.point - point)
@@ -116,6 +130,6 @@ class Scene(object):
         
         if not inShadow: # add direct light
             color = obj.calcColor(self.light, lightray, ray, point)
-        else:
+        else: # add ambient light
             color = self.light.ca * obj.surface.ka * obj.baseColorAt(point.coords)
         return color
