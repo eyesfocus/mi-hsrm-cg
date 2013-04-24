@@ -58,4 +58,4 @@ if __name__ == '__main__':
     print 'Rendering Time: %d seconds' % (time.time() - beginTime)
     
     image.show()
-    image.save('schedlbauer_raytracer.png', 'PNG')
+    image.save('out_image.png', 'PNG')
