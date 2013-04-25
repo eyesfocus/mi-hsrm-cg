@@ -92,7 +92,7 @@ class Scene(object):
         # calculate reflected color
         reflectedRay = self.computeReflectedRay(hitPointData)
         reflectedColor = self.traceRay(level+1, reflectedRay)
-        reflection = obj.surface.ks
+        reflection = obj.surface.reflection#ks
 
         return directColor + reflectedColor * reflection
 

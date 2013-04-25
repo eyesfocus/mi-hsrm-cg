@@ -5,11 +5,12 @@ from algebra import Vector
 class Material(object):
     '''Describes the Material of an Object in a Scene'''
     
-    def __init__(self, color, ka = .3, kd = .6, ks = .2, small_n = 1):
+    def __init__(self, color, ka = .3, kd = .6, ks = .2, reflection = .1, small_n = 1):
         self.baseColor = color
         self.ka = ka
         self.kd = kd
         self.ks = ks
+        self.reflection = reflection
         self.small_n = small_n
 
     def baseColorAt(self, p):
