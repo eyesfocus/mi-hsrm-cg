@@ -1,7 +1,7 @@
 from Tkinter import *
 from Canvas import *
 import sys
-import whrandom
+import random
 
 WIDTH  = 400 # width of canvas
 HEIGHT = 400 # height of canvas
@@ -23,10 +23,10 @@ def quit(root=None):
 def draw():
     """ draw points """
     for i in range(1,NOPOINTS):
-	x, y = whrandom.randint(1,WIDTH), whrandom.randint(1,HEIGHT)
-	p = can.create_oval(x-HPSIZE, y-HPSIZE, x+HPSIZE, y+HPSIZE,
+        x, y = random.randint(1,WIDTH), random.randint(1,HEIGHT)
+        p = can.create_oval(x-HPSIZE, y-HPSIZE, x+HPSIZE, y+HPSIZE,
                            fill=COLOR, outline=COLOR)
-	pointList.insert(0,p)
+        pointList.insert(0,p)
 
 def rotYp():
     """ rotate counterclockwise around y axis """
@@ -45,6 +45,10 @@ def rotYn():
     draw()
 
 
+def readData(filex):
+    global pointList
+    pts = [map(float, l.split()) for l in file(filex)]
+    
 if __name__ == "__main__":
     #check parameters
     if len(sys.argv) != 1:
@@ -53,6 +57,12 @@ if __name__ == "__main__":
 
     # create main window
     mw = Tk()
+
+    #######################################################################
+    
+    readData(file('data/cow_points.raw'))
+    
+   # boundingBox = 
 
     # create and position canvas and buttons
     cFr = Frame(mw, width=WIDTH, height=HEIGHT, relief="sunken", bd=1)
