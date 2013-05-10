@@ -71,7 +71,7 @@ if __name__ == "__main__":
     mw = Tk()
 
     # read data
-    dataPoints = [map(float, line.split()) for line in file('data/elephant_points.raw')]
+    dataPoints = [map(float, line.split()) for line in file('data/cow_points.raw')]
 
     # bounding box
     boundingBox = [map(min, zip(*dataPoints)), map(max, zip(*dataPoints))]
@@ -79,15 +79,11 @@ if __name__ == "__main__":
     # center of bounding box
     center = [(coords[0] + coords[1]) / 2.0 for coords in zip(*boundingBox)]
 
-    # move center of bounding box to origin
-    canonViewVolume = [[point[0] - center[0], point[1] - center[1], point[2] - center[2]] for point in dataPoints]
-
     # find longest side and calculate scale (for length = 2.0)
     sideScale = 2.0 / max([(coords[1] - coords[0]) for coords in zip(*boundingBox)])
 
-    # scale canonViewVolume to a length of 2.0
-    canonViewVolume = [[point[0]*sideScale, point[1]*sideScale, point[2]*sideScale] for point in canonViewVolume]
-
+    # move center of bounding box to origin and scale to a length of 2.0
+    canonViewVolume = [[(point[0] - center[0])*sideScale, (point[1] - center[1])*sideScale, (point[2] - center[2])*sideScale] for point in dataPoints]
 
     # create and position canvas and buttons
     cFr = Frame(mw, width=WIDTH, height=HEIGHT, relief="sunken", bd=1)

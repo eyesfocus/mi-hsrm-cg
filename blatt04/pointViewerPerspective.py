@@ -3,6 +3,7 @@ from Canvas import *
 import sys
 import random
 from math import *
+import numpy as np
 
 WIDTH  = 400 # width of canvas
 HEIGHT = 400 # height of canvas
@@ -24,8 +25,37 @@ def draw():
     """ draw points """
     global canonViewVolume
 
-    # clipping
+    # perspective transformation (multiplicate with Perspective Transformation Matrix)
     
+    # calculate radius r
+    radius = sqrt(sum(map(lambda x: x*x, map(lambda x,y: x-y, center, boundingBox[0])))) 
+    print radius
+
+    # init camera-coords with e=(0,0,d=2r), c=(0,0,0), up=(0,1,0)
+    e = [0,0,2*radius]
+    c = [0,0,0]
+    up = [0,1,0]
+
+    f = [1.0,0,0]#map(lambda x: x/abs(2*radius), map(lambda x,y: x-y, c, e))
+    s = [0,0,1.0] #per hand gerechnet
+    u = [0,-1.0,0] #per hand gerechnet
+
+    print f,s,u
+
+    
+    # modelview-transformation (multiplicate with LookAt-Matrix)
+    modelViewPoints = [[s[0]*p[0], u[1]*p[1], -f[2]*p[2]]  for p in dataPoints]  
+    
+    near = radius
+    far = 3*radius
+    angle = radians(30)
+    cot = cos(angle)/sin(angle)
+    aspect = WIDTH/float(HEIGHT)
+
+    canonViewVolume = [[(cot/aspect * p[0])/-p[2], (cot * p[1])/-p[2], ((-(far+near)/(far-near) * p[2]) + (-(2*far*near)/(far-near)))/-p[2]] for p in modelViewPoints]
+
+    points2d = [point[:2] for point in canonViewVolume]
+    viewport = [[(point[0] + 1) * WIDTH/2.0, (1 - point[1]) * HEIGHT/2.0] for point in points2d]
 
     # viewport-transformation
     # viewport = ?
@@ -71,41 +101,18 @@ if __name__ == "__main__":
 
     # read data
     dataPoints = [map(float, line.split()) for line in file('data/cow_points.raw')]
-    
+
     # bounding box
     boundingBox = [map(min, zip(*dataPoints)), map(max, zip(*dataPoints))]
 
-    # center of boundingbox
+    # center of bounding box
     center = [(coords[0] + coords[1]) / 2.0 for coords in zip(*boundingBox)]
 
-    ###########################
-    
-    # calculate smallest radius r
-    radius = sqrt(sum(map(lambda x: x*x, map(lambda x,y: x-y, center, boundingBox[0])))) 
-    print "radius %s" % radius
+    # find longest side and calculate scale (for length = 2.0)
+    sideScale = 2.0 / max([(coords[1] - coords[0]) for coords in zip(*boundingBox)])
 
-    # init camera-coords with e=(0,0,d=2r), c=(0,0,0), up=(0,1,0)
-    e = [0,0,2*radius]
-    c = [0,0,0]
-    up = [0,1,0]
-
-    f = map(lambda x: x/abs(2*radius), map(lambda x,y: x-y, c, e))
-    s = [1,0,0] #per hand
-    u = [0,1,0] #per hand
-    
-    # modelview-transformation (multiplicate with LookAt-Matrix)
-    modelViewPoints = [[s[0]*p[0], u[1]*p[1], -f[2]*p[2]]  for p in dataPoints]    
-
-    # view frustum transformation (multiplicate with Perspective Transformation Matrix)
-    near = radius
-    far = 2*radius
-    angle = radians(30)
-    cot = cos(angle)/sin(angle)
-    aspect = WIDTH/float(HEIGHT)
-
-    #canonViewVolume = [[cot/aspect * p[0], cot * p[1], (-(far+near)/(far-near) * p[2]) + (-(2*far*near)/(far-near))] for p in modelViewPoints]
-    
-    ############################
+    # move center of bounding box to origin and scale to a length of 2.0
+    #canonViewVolume = [[(point[0] - center[0])*sideScale, (point[1] - center[1])*sideScale, (point[2] - center[2])*sideScale] for point in dataPoints]
     
     # create and position canvas and buttons
     cFr = Frame(mw, width=WIDTH, height=HEIGHT, relief="sunken", bd=1)
@@ -124,7 +131,7 @@ if __name__ == "__main__":
     bExit.pack()
 
     # draw points
-    # draw()
+    draw()
 
     # start
     mw.mainloop()
