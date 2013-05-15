@@ -13,6 +13,7 @@ BCOLOR = "#000000" # boundary color
 pointList = []   # list of points
 elementList = [] # list of elements (used by Canvas.delete(...))
 
+swap = False
 
 
 def drawGrid(s):
@@ -47,42 +48,50 @@ def drawBresenhamLine(p,q):
     x0, y0 = p
     x1, y1 = q
 
-    if x0 > x1:
-        drawBresenhamLine(q, p)
-        pass
-    
+    if p[0] > q[0]:
+        p, q = q, p
+
+    x0, y0 = p
+    x1, y1 = q
+        
     a, b = y1 - y0, x0 - x1
     
     d = 2*a + b
     IncE, IncNE = 2*a, 2*(a+b)
 
-    m = (y1-y0)/float(x1-x0)
-    print m
-
-##    if m >= 0 and m <=1:
-##        x,y = x0, y0
-##        endX = x1
-##    else:
-##        x,y = y0, x0
-##        endX = y1
-
-    x, y = x0, y0
-    endX = q[0]
+    if x1 == x0:
+        m = float('inf')
+    else:
+        m = (y1-y0)/float(x1-x0)
+        
+    if m >= 0 and m <=1:
+        x,y = x0, y0
+        endX = x1
+        swap = False
+    else:
+        x,y = y0, x0
+        endX = y1
+        swap = True
     
     while x < endX:
-	add(x,y)
-	if d <= 0:
-	    d += IncE
+        if not swap:
+            add(x,y)
+        else:
+            add(y,x)
+            
+        if d <= 0:
+            d += IncE
         else:
             d += IncNE
             y += 2*HPSIZE
         x += 2*HPSIZE
 
+            
+
 def add(x,y):
     global elementList
-
     element = can.create_rectangle(x-HPSIZE, y-HPSIZE,
-				       x+HPSIZE, y+HPSIZE,
+                                       x+HPSIZE, y+HPSIZE,
 				       fill=FCOLOR, outline=BCOLOR)
        
     elementList.append(element)
