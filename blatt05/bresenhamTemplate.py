@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Tkinter import *
 from Canvas import *
 import sys
@@ -12,9 +13,6 @@ BCOLOR = "#000000" # boundary color
 
 pointList = []   # list of points
 elementList = [] # list of elements (used by Canvas.delete(...))
-
-swap = False
-
 
 def drawGrid(s):
     """ draw a rectangular grid """
@@ -38,64 +36,71 @@ def drawLines():
     for line in zip(pointList[::2],pointList[1::2]):
         drawBresenhamLine(line[0],line[1])
         element = can.create_line(line,width=1)
-        elementList.append(element)    
-
+        elementList.append(element)  
 
 def drawBresenhamLine(p,q):
     """ draw a line using bresenhams algorithm """
-    global elementList
+    swap = False
+    negative = False
+    x0, y0 = p[0], p[1]
+    x1, y1 = q[0], q[1]
 
-    x0, y0 = p
-    x1, y1 = q
-
-    if p[0] > q[0]:
-        p, q = q, p
-
-    x0, y0 = p
-    x1, y1 = q
-        
-    a, b = y1 - y0, x0 - x1
-    
-    d = 2*a + b
-    IncE, IncNE = 2*a, 2*(a+b)
-
-    if x1 == x0:
+    #Sonderfälle
+    if float(x1 - x0) == 0:
         m = float('inf')
-    else:
-        m = (y1-y0)/float(x1-x0)
-        
-    if m >= 0 and m <=1:
-        x,y = x0, y0
-        endX = x1
-        swap = False
-    else:
-        x,y = y0, x0
-        endX = y1
-        swap = True
-    
-    while x < endX:
-        if not swap:
-            add(x,y)
+    else: 
+        m = (y1 - y0) / float(x1 - x0)
+    if m < 0:
+        negative = True
+        if x0 > x1:
+            x1 = x0 +  (x0 - x1)
         else:
-            add(y,x)
-            
+            x0 = x1 +  (x1 - x0)
+
+        m = abs(m)
+    if m > 1:
+        swap = True
+        x0, y0 = y0, x0
+        x1, y1 = y1, x1
+
+    if x0 > x1:
+        x0, x1 = x1, x0
+        y0, y1 = y1, y0
+    #Bresenham start
+    a, b = y1 - y0, x0 - x1
+    d = 2*a + b
+    IncE = 2*a
+    IncNE = 2*(a + b)
+    y0 = int((y0 + HPSIZE) / (HPSIZE*2.0))
+    y = y0
+    xr0, xr1 = int((x0 + HPSIZE) / (HPSIZE*2.0)),int((x1 + HPSIZE) / (HPSIZE*2.0))
+    if xr0 > xr1:
+        xr0, xr1 = xr1, xr0
+    for x in range(xr0, xr1 +1):
+        if swap and negative:
+            ytemp = y0 - (y- y0)
+            setzePixel(ytemp, x)
+        elif swap:
+            setzePixel(y, x)
+        elif negative:
+            x = xr0 - (x - xr0)
+            setzePixel(x, y)
+        else:
+            setzePixel(x, y)
         if d <= 0:
             d += IncE
         else:
             d += IncNE
-            y += 2*HPSIZE
-        x += 2*HPSIZE
+            y += 1
 
-            
-
-def add(x,y):
+def setzePixel(x, y):
     global elementList
+    x = x * 2 * HPSIZE - HPSIZE
+    y = y * 2 * HPSIZE - HPSIZE
     element = can.create_rectangle(x-HPSIZE, y-HPSIZE,
-                                       x+HPSIZE, y+HPSIZE,
+				       x+HPSIZE, y+HPSIZE,
 				       fill=FCOLOR, outline=BCOLOR)
-       
     elementList.append(element)
-    
 
 def quit(root=None):
     """ quit programm """
@@ -121,7 +126,7 @@ def mouseEvent(event):
     """ process mouse events """
     # get point coordinates
     d = 2*HPSIZE
-    p = [d/2+d*(event.x/d), d/2+d*(event.y/d)] 
+    p = [d/2+d*(event.x/d), d/2+d*(event.y/d)]
     pointList.append(p)
     draw()
 
@@ -154,4 +159,3 @@ if __name__ == "__main__":
     drawGrid(2*HPSIZE)
     # start
     mw.mainloop()
-    
