@@ -66,7 +66,7 @@ def drawLines():
             elementList.append(element)
             newLine = calcNewLine(line, lc, clipRegion)
             if newLine:
-                element = can.create_line(newLine, width=CLSIZE)
+                element = can.create_line(newLine[0].coords, newLine[1].coords, width=CLSIZE)
                 elementList.append(element)
 
 def lineCase(line):
@@ -82,18 +82,69 @@ def lineCase(line):
 	# line is completly unvisible
         return -1
     # 1. and 3. case
+    if union == 0: # line is completly visible
+        return 0
     else:
-        if union == 0: # line is completly visible
-            return 0
-	# othervise furhter tests are nessecary
+        # othervise furhter tests are nessecary
         return union
 	
     
-def calcNewLine(line, lineC, clipRegion):
+def calcNewLine(line, lc, clipRegion):
     """ Calculate clipped line """
     # TODO: calculate new line (clipped at clipRegion)
-    return []
+
+    minmax = [map(min, zip(*clipRegion)), map(max, zip(*clipRegion))]
+    minx, miny, maxx, maxy = minmax[0][0],  minmax[0][1],  minmax[1][0], minmax[1][1]
+
+    if lc & 1:
+        print 'Bit 0 = 1'
+        # intersect with minx
+        y = intersectedY(line, minx)
+        np = Point([minx,y], clipRegion)
+        line =  (np, line[1])
+        return line
     
+    if lc & 2:
+        print 'Bit 1 = 1'
+        # intersect with maxx
+        y = intersectedY(line, maxx)
+        np = Point([maxx,y], clipRegion)
+        line =  (np, line[1])
+
+        return line
+
+    if lc & 4:
+        print 'Bit 2 = 1'
+        # intersect with miny
+        x = intersectedX(line, miny)
+        np = Point([x,miny], clipRegion)
+        line = (line[0], np)
+        return line
+
+    if lc & 8:
+        print 'Bit 3 = 1'
+        # intersect with maxy
+        x = intersectedX(line, maxy)
+        np = Point([x, maxy], clipRegion)
+        line = (line[0], np)
+        return line
+
+    return None
+
+
+
+
+
+def intersectedY(line, x):
+    x1, y1, x2, y2 = line[0].coords[0],  line[0].coords[1],  line[1].coords[0], line[1].coords[1]
+    y = (y2-y1)/(x2-x1)*(x-x2) + y2
+    return y
+
+def intersectedX(line, y):
+    x1, y1, x2, y2 = line[0].coords[0],  line[0].coords[1],  line[1].coords[0], line[1].coords[1]
+    x = (x2-x1)/(y2-y1)*(y-y2) + x2
+    return x
+
 
 def quit(root=None):
     """ quit programm """
