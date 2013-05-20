@@ -114,9 +114,9 @@ def menu_func(value):
 
 
 def main():
-   # Hack for Mac OS X
    global sidescale, center, dataPoints, vb
-   
+
+   # Hack for Mac OS X
    cwd = os.getcwd()
    glutInit(sys.argv)
    os.chdir(cwd)
