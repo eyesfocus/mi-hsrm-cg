@@ -26,6 +26,14 @@ X_AXIS = [1.,0.,0.]
 Y_AXIS = [0.,1.,0.]
 Z_AXIS = [0.,0.,1.]
 
+lightPos = [0., 20., 0.]
+
+SHADOW_MATRIX = matrix([
+         [1., 0., 0., 0.],
+         [0., 1., 0., 0.],
+         [0., 0., 1., 0.],
+         [0., -1/lightPos[1], 0., 0.]]).transpose()
+
 MAX_ZOOM = 1.5
 MIN_ZOOM = 0.5
 INIT_ZOOM = 1.0   
@@ -98,6 +106,7 @@ def init(width, height):
    glEnable(GL_DEPTH_TEST)
    glEnable(GL_NORMALIZE)
    glEnable(GL_COLOR_MATERIAL)
+   glLightfv(GL_LIGHT0, GL_POSITION, lightPos)
    
    updateProjection()
    
@@ -111,7 +120,6 @@ def display():
 
    glClearColor(*colors[current_bg])      #background color   
    glClear(GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT)           #clear screen
-   glColor(*colors[current_obj])       #object color   
 
    if light:
       glEnable(GL_LIGHTING)
@@ -122,6 +130,30 @@ def display():
    displayModel(colors[current_obj], GL_FILL)
    if wire:
       displayModel(BLUE, GL_LINE)
+
+###############
+##   glColor(*BLACK)
+##   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+##
+##   vb.bind() # load points
+##   glEnableClientState(GL_VERTEX_ARRAY)
+##
+##   glMatrixMode(GL_MODELVIEW)
+##   glPushMatrix()
+##   glTranslate(lightPos[0],lightPos[1],lightPos[2])
+##   glMultMatrixf(SHADOW_MATRIX)
+##   glTranslatef(-lightPos[0],-lightPos[1],-lightPos[2])
+##   
+##   glVertexPointer(3, GL_FLOAT, 24, vb)
+##
+##   glDrawArrays(GL_TRIANGLES, 0, len(data))
+##   glPopMatrix()
+##
+##
+##   vb.unbind()
+##   glDisableClientState(GL_VERTEX_ARRAY)
+
+##########
    
    glutSwapBuffers()
    
