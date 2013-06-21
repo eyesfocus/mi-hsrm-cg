@@ -111,7 +111,7 @@ if __name__ == "__main__":
     mw = Tk()
 
     # read data
-    dataPoints = [map(float, line.split()+[1.]) for line in file('data/cow_points.raw')]
+    dataPoints = [map(float, line.split()+[1.]) for line in file('data/squirrel_points.raw')]
 
     # bounding box
     boundingBox = [map(min, zip(*dataPoints)), map(max, zip(*dataPoints))]
